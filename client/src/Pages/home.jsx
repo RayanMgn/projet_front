@@ -1,11 +1,11 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
     const [username, setUsername] = useState("");
+    const nav = useNavigate();
 
-    function SubmitHandle() {
-
+    function PlayHandle() {
         if (!username.trim()) {
             alert("Please enter a username");
             return;
@@ -13,13 +13,15 @@ export default function HomePage() {
 
         console.log("Submit:", username);
         localStorage.setItem("username", username)
-    }
 
+        console.log("Play:");
+        nav("/game");
+
+    }
     return (
         <div>
             <h1>RAYANN GAME</h1>
             <p className="game-description">
-
             </p>
             <input
                 type="text"
@@ -27,16 +29,14 @@ export default function HomePage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
             />
-
-            <button onClick={SubmitHandle}>
-                Submit
+            <button onClick={PlayHandle}>
+                JOUER
             </button>
-
-            <button>JOUER</button>
 
             <p>{username}</p>
         </div>
     );
 }
+
 
 
