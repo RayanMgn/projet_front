@@ -68,7 +68,7 @@ const levels = [
     },
 
     /* -------------------------------
-       NIVEAU 2 (clés + combats)
+    NIVEAU 2 (clés + combats)
     -------------------------------- */
     {
         id: 2,
@@ -103,7 +103,7 @@ const levels = [
     },
 
     /* -------------------------------
-       NIVEAU 3 (mix combats + obstacles)
+    NIVEAU 3 (mix combats + obstacles)
     -------------------------------- */
     {
         id: 3,

@@ -15,7 +15,7 @@ export default function HomePage() {
         localStorage.setItem("username", username)
 
         console.log("Play:");
-        nav("/game");
+        nav("/choix-level");
 
     }
     return (
