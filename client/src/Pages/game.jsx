@@ -46,26 +46,95 @@ export default function GamePage() {
     }
 
     function revealTile(r, c) {
-        if (!isAdjacent(r, c) || revealed[r][c]) return;
+    if (!isAdjacent(r, c)) return;
 
-        const newRev = [...revealed];
-        newRev[r][c] = true;
-        setRevealed(newRev);
-        setMoves(moves + 1);
+    const newRev = [...revealed];
+    newRev[r][c] = true; 
+    setRevealed(newRev);
+    setMoves(moves + 1);
 
-        const cell = grid[r][c];
+    const cell = grid[r][c];
+
 
         if (cell === "W") {
-        } else if (cell === "E") {
+        }
+        else if (cell === "E") {
             setGameWon(true);
             setScore(score + 1000 - moves * 10);
-        } else if (cell === "K:red") {
+        }
+
+        else if (cell === "K:red") {
             setScore(score + 100);
             setPlayerPos({ row: r, col: c });
-        } else if (cell.startsWith("M:")) {
+        }
+
+        else if (cell === "D:red") {
+            if (inventory.has("K:red")) {
+                setPlayerPos({ row: r, col: c });
+                setScore(score + 10); 
+            } else {
+                
+            }
+        }
+
+        else if (cell === "O:rock") {
+            if (inventory.has("I:pickaxe")) {
+                setScore(score + 50);
+                setPlayerPos({ row: r, col: c });
+            } else {
+                
+            }
+        }
+
+        else if (cell === "O:fire") {
+            if (inventory.has("I:water_bucket")) {
+                setScore(score + 30); 
+                setPlayerPos({ row: r, col: c });
+            } else {
+                setScore(Math.max(0, score - 100)); 
+                setPlayerPos({ row: r, col: c });
+            }
+        }
+
+        else if (cell === "O:water") {
+            if (inventory.has("I:swim_boots")) {
+                setScore(score + 20);
+                setPlayerPos({ row: r, col: c });
+            } else {
+            }
+        }
+
+        else if (cell === "I:pickaxe") {
+            setScore(score + 75);
+            setPlayerPos({ row: r, col: c });
+        }
+
+        else if (cell === "I:swim_boots") {
+            setScore(score + 75);
+            setPlayerPos({ row: r, col: c });
+        }
+
+        else if (cell === "I:water_bucket") {
+            setScore(score + 75);
+            setPlayerPos({ row: r, col: c });
+        }
+
+        else if (cell === "M:goblin") {
             setScore(Math.max(0, score - 50));
             setPlayerPos({ row: r, col: c });
-        } else {
+        }
+
+        else if (cell === "M:slime") {
+            setScore(Math.max(0, score - 30));
+            setPlayerPos({ row: r, col: c });
+        }
+
+        else if (cell === "M:orc") {
+            setScore(Math.max(0, score - 100));
+            setPlayerPos({ row: r, col: c });
+        }
+
+        else {
             setPlayerPos({ row: r, col: c });
         }
     }
@@ -91,8 +160,9 @@ export default function GamePage() {
             if (cell === "W") bg = "#18c7d7";
             else if (cell === "S") bg = "#4caf50";
             else if (cell === "E") bg = "#f44336";
-            else if (cell?.startsWith("M:")) bg = "#ff5722";
-            else if (cell?.startsWith("K:")) bg = "#ffc107";
+            else if (cell === "M:goblin") bg = "#ff5722";
+            else if (cell === "K:red") bg = "#ffc107";
+            else if (cell === "D:red") bg = "#4d07ffff"
             else bg = "#555";
         }
 
