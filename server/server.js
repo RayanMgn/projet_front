@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 let highscores = [
-    // Exemple : { id: 1, playerName: "Test", score: 100, levelId: 1, createdAt: "2025-01-01T10:00:00.000Z" }
+    { id: 1, playerName: "Test", score: 100, levelId: 1, createdAt: "2025-01-01T10:00:00.000Z" }
 ];
 /* -------------------------------------------
    CATALOGUES ENNEMIS / OBSTACLES / ITEMS
