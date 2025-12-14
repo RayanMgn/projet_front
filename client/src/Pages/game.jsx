@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../index.css";
 
-
 export default function GamePage() {
     const navigate = useNavigate();
     const storedUsername = localStorage.getItem("username");
@@ -14,6 +13,8 @@ export default function GamePage() {
     const [score, setScore] = useState(0);
     const [moves, setMoves] = useState(0);
     const [gameWon, setGameWon] = useState(false);
+    const [inventory, setInventory] = useState(new Set());
+
 
     useEffect(() => {
         if (!storedUsername) navigate("/");
@@ -46,15 +47,14 @@ export default function GamePage() {
     }
 
     function revealTile(r, c) {
-    if (!isAdjacent(r, c)) return;
+        if (!isAdjacent(r, c)) return;
 
-    const newRev = [...revealed];
-    newRev[r][c] = true; 
-    setRevealed(newRev);
-    setMoves(moves + 1);
+        const newRev = [...revealed];
+        newRev[r][c] = true;
+        setRevealed(newRev);
+        setMoves(moves + 1);
 
-    const cell = grid[r][c];
-
+        const cell = grid[r][c];
 
         if (cell === "W") {
         }
@@ -62,89 +62,109 @@ export default function GamePage() {
             setGameWon(true);
             setScore(score + 1000 - moves * 10);
         }
-
         else if (cell === "K:red") {
             setScore(score + 100);
             setPlayerPos({ row: r, col: c });
         }
-
         else if (cell === "D:red") {
             if (inventory.has("K:red")) {
                 setPlayerPos({ row: r, col: c });
-                setScore(score + 10); 
-            } else {
-                
+                setScore(score + 10);
             }
         }
-
         else if (cell === "O:rock") {
             if (inventory.has("I:pickaxe")) {
                 setScore(score + 50);
                 setPlayerPos({ row: r, col: c });
-            } else {
-                
+                return true;
+            }else {
+                return false;
             }
         }
-
         else if (cell === "O:fire") {
             if (inventory.has("I:water_bucket")) {
-                setScore(score + 30); 
+                setScore(score + 30);
                 setPlayerPos({ row: r, col: c });
             } else {
-                setScore(Math.max(0, score - 100)); 
+                setScore(Math.max(0, score - 100));
                 setPlayerPos({ row: r, col: c });
             }
         }
-
         else if (cell === "O:water") {
             if (inventory.has("I:swim_boots")) {
                 setScore(score + 20);
                 setPlayerPos({ row: r, col: c });
-            } else {
             }
         }
-
         else if (cell === "I:pickaxe") {
             setScore(score + 75);
+            setInventory(new Set([...inventory, "I:pickaxe"]));
             setPlayerPos({ row: r, col: c });
         }
-
         else if (cell === "I:swim_boots") {
             setScore(score + 75);
             setPlayerPos({ row: r, col: c });
         }
-
         else if (cell === "I:water_bucket") {
             setScore(score + 75);
             setPlayerPos({ row: r, col: c });
         }
-
         else if (cell === "M:goblin") {
             setScore(Math.max(0, score - 50));
             setPlayerPos({ row: r, col: c });
         }
-
         else if (cell === "M:slime") {
             setScore(Math.max(0, score - 30));
             setPlayerPos({ row: r, col: c });
         }
-
         else if (cell === "M:orc") {
             setScore(Math.max(0, score - 100));
             setPlayerPos({ row: r, col: c });
         }
-
         else {
             setPlayerPos({ row: r, col: c });
         }
     }
+
+    function handleKeyDown(e) {
+        if (!playerPos || !grid || gameWon) return;
+
+        let { row, col } = playerPos;
+
+        if (e.key === "ArrowUp") row--;
+        else if (e.key === "ArrowDown") row++;
+        else if (e.key === "ArrowLeft") col--;
+        else if (e.key === "ArrowRight") col++;
+        else return;
+
+        if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length) return;
+
+        revealTile(row, col);
+    }
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [playerPos, grid, gameWon]);
 
     function getTileDisplay(cell) {
         if (cell === "W") return "🧱";
         if (cell === "S") return "🟢";
         if (cell === "E") return "🏁";
         if (cell === "K:red") return "🔑";
-        if (cell?.startsWith("M:")) return "👹";
+        if (cell === "D:red") return "🚪";
+        if (cell === "M:goblin") return "👺";
+        if (cell === "M:slime") return "🟩";
+        if (cell === "M:orc") return "👹";
+        if (cell.startsWith("M:")) return "👾";
+        if (cell === "O:rock") return "🪨";
+        if (cell === "O:fire") return "🔥";
+        if (cell === "O:water") return "💧";
+        if (cell === "I:pickaxe") return "⛏️";
+        if (cell === "I:swim_boots") return "🥾";
+        if (cell === "I:water_bucket") return "🪣";
+        if (cell === "I:boat") return "⛵";
+        if (cell.startsWith("I:")) return "🎒";
         return "·";
     }
 
@@ -157,12 +177,21 @@ export default function GamePage() {
 
         if (isRevealed) {
             display = getTileDisplay(cell);
+
             if (cell === "W") bg = "#18c7d7";
             else if (cell === "S") bg = "#4caf50";
             else if (cell === "E") bg = "#f44336";
             else if (cell === "M:goblin") bg = "#ff5722";
             else if (cell === "K:red") bg = "#ffc107";
-            else if (cell === "D:red") bg = "#4d07ffff"
+            else if (cell === "D:red") bg = "#4d07ff";
+            else if (cell === "M:slime") bg = "#4caf50";
+            else if (cell === "M:orc") bg = "#9c27b0";
+            else if (cell === "O:rock") bg = "#795548";
+            else if (cell === "O:fire") bg = "#e53935";
+            else if (cell === "O:water") bg = "#2196f3";
+            else if (cell === "I:pickaxe") bg = "#9e9e9e";
+            else if (cell === "I:swim_boots") bg = "#00bcd4";
+            else if (cell === "I:water_bucket") bg = "#03a9f4";
             else bg = "#555";
         }
 
@@ -188,9 +217,7 @@ export default function GamePage() {
         return (
             <div
                 className="game-grid"
-                style={{
-                    gridTemplateColumns: `repeat(${lvl.cols}, 1fr)`,
-                }}
+                style={{ gridTemplateColumns: `repeat(${lvl.cols}, 1fr)` }}
             >
                 {grid.map((row, r) =>
                     row.map((cell, c) => renderTile(cell, r, c))
@@ -221,22 +248,27 @@ export default function GamePage() {
             </div>
 
             <div className="game-main">
-                <h1 className="game-title"><i class="fa-solid fa-gamepad"></i> Maze Challenge</h1>
+                <h1 className="game-title"><i className="fa-solid fa-gamepad"></i> Maze Challenge</h1>
+
                 {gameWon && (
                     <div className="win-message">
-                        <h2><i class="fa-solid fa-award"></i> Level Complete!</h2>
+                        <h2><i className="fa-solid fa-award"></i> Level Complete!</h2>
                         <p>Score: {score}</p>
-                        <button onClick={() => navigate("/choix-level")} className="continue-button">
+                        <button
+                            onClick={() => navigate("/choix-level")}
+                            className="continue-button"
+                        >
                             Next Level
                         </button>
                     </div>
                 )}
+
                 {renderGrid()}
             </div>
 
             <div className="game-controls">
                 <div className="controls-info">
-                    <p>Click adjacent tiles to move</p>
+                    <p>Click or use arrow keys to move</p>
                     <p>🟢 Start | 🏁 End | 🔑 Key | 👹 Monster | 🧱 Wall</p>
                 </div>
                 <button onClick={() => navigate("/choix-level")} className="exit-button">
